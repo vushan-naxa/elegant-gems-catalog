@@ -21,7 +21,7 @@ export default {
 		extend: {
 			fontFamily: {
 				sans: ['Manrope', 'sans-serif'],
-				serif: ['Marcellus', 'serif'],
+				serif: ['Playfair Display', 'serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -111,6 +111,10 @@ export default {
 				'shimmer': {
 					'100%': { transform: 'translateX(100%)' }
 				},
+				'pulse-gold': {
+					'0%, 100%': { boxShadow: '0 0 0 0 rgba(212, 175, 55, 0.4)' },
+					'50%': { boxShadow: '0 0 0 8px rgba(212, 175, 55, 0)' }
+				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
@@ -120,7 +124,8 @@ export default {
 				'slide-up': 'slide-up 0.3s ease-out',
 				'slide-down': 'slide-down 0.3s ease-out',
 				'scale-in': 'scale-in 0.3s ease-out',
-				'shimmer': 'shimmer 2s infinite'
+				'shimmer': 'shimmer 2s infinite',
+				'pulse-gold': 'pulse-gold 2s infinite'
 			}
 		}
 	},

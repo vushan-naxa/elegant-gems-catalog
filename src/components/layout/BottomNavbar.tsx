@@ -1,6 +1,7 @@
 
 import { Link, useLocation } from "react-router-dom";
 import { Home, Search, User, MessageSquare } from "lucide-react";
+import { motion } from "framer-motion";
 
 const BottomNavbar = () => {
   const location = useLocation();
@@ -11,47 +12,57 @@ const BottomNavbar = () => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-white border-t border-gray-200 h-16 flex items-center justify-around z-10">
-      <Link
-        to="/"
-        className={`flex flex-col items-center justify-center w-1/4 py-1 ${
-          isActive("/") ? "text-gold" : "text-gray-500"
-        } transition-colors duration-200`}
-      >
-        <Home className={`h-6 w-6 ${isActive("/") && "fill-gold-light stroke-gold"}`} />
-        <span className="text-xs mt-1 font-medium">Home</span>
-      </Link>
+    <div className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-white/95 backdrop-blur-md border-t border-gray-100 h-16 flex items-center justify-around z-10 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+      <NavItem 
+        to="/" 
+        isActive={isActive("/")} 
+        icon={<Home className={`h-6 w-6 transition-colors duration-300 ${isActive("/") ? "fill-gold-light stroke-gold" : "stroke-gray-500"}`} />}
+        label="Home"
+      />
 
-      <Link
-        to="/explore"
-        className={`flex flex-col items-center justify-center w-1/4 py-1 ${
-          isActive("/explore") ? "text-gold" : "text-gray-500"
-        } transition-colors duration-200`}
-      >
-        <Search className={`h-6 w-6 ${isActive("/explore") && "stroke-gold"}`} />
-        <span className="text-xs mt-1 font-medium">Explore</span>
-      </Link>
+      <NavItem 
+        to="/explore" 
+        isActive={isActive("/explore")} 
+        icon={<Search className={`h-6 w-6 transition-colors duration-300 ${isActive("/explore") ? "stroke-gold" : "stroke-gray-500"}`} />}
+        label="Explore"
+      />
       
-      <Link
-        to="/messages"
-        className={`flex flex-col items-center justify-center w-1/4 py-1 ${
-          isActive("/messages") ? "text-gold" : "text-gray-500"
-        } transition-colors duration-200`}
-      >
-        <MessageSquare className={`h-6 w-6 ${isActive("/messages") && "stroke-gold"}`} />
-        <span className="text-xs mt-1 font-medium">Messages</span>
-      </Link>
+      <NavItem 
+        to="/messages" 
+        isActive={isActive("/messages")} 
+        icon={<MessageSquare className={`h-6 w-6 transition-colors duration-300 ${isActive("/messages") ? "stroke-gold" : "stroke-gray-500"}`} />}
+        label="Messages"
+      />
 
-      <Link
-        to="/profile"
-        className={`flex flex-col items-center justify-center w-1/4 py-1 ${
-          isActive("/profile") ? "text-gold" : "text-gray-500"
-        } transition-colors duration-200`}
-      >
-        <User className={`h-6 w-6 ${isActive("/profile") && "stroke-gold"}`} />
-        <span className="text-xs mt-1 font-medium">Profile</span>
-      </Link>
+      <NavItem 
+        to="/profile" 
+        isActive={isActive("/profile")} 
+        icon={<User className={`h-6 w-6 transition-colors duration-300 ${isActive("/profile") ? "stroke-gold" : "stroke-gray-500"}`} />}
+        label="Profile"
+      />
     </div>
+  );
+};
+
+const NavItem = ({ to, isActive, icon, label }: { to: string; isActive: boolean; icon: React.ReactNode; label: string }) => {
+  return (
+    <Link
+      to={to}
+      className="flex flex-col items-center justify-center w-1/4 py-1 relative"
+    >
+      {isActive && (
+        <motion.div
+          layoutId="nav-indicator"
+          className="absolute -top-1 w-12 h-1 bg-gradient-to-r from-gold-dark to-gold rounded-full"
+          initial={false}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        />
+      )}
+      {icon}
+      <span className={`text-xs mt-1 font-medium transition-colors duration-300 ${isActive ? "text-gold" : "text-gray-500"}`}>
+        {label}
+      </span>
+    </Link>
   );
 };
 

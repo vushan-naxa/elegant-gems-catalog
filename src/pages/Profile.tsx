@@ -1,7 +1,8 @@
 
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { ChevronRight, Settings } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronRight, UserCircle, LogOut, Settings, Camera, Heart, ShoppingBag, CreditCard, HelpCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Profile = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -19,16 +20,16 @@ const Profile = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
+        staggerChildren: 0.08
       }
     }
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 10 },
+    hidden: { opacity: 0, x: -10 },
     visible: {
       opacity: 1,
-      y: 0,
+      x: 0,
       transition: {
         type: "spring",
         stiffness: 100,
@@ -49,12 +50,29 @@ const Profile = () => {
 
   if (!isLoggedIn) {
     return (
-      <div className="h-full flex flex-col items-center justify-center py-10 px-6">
+      <motion.div 
+        className="h-full flex flex-col items-center justify-center py-10 px-6"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4 }}
+      >
         <div className="w-full max-w-sm">
-          <h1 className="text-2xl font-serif font-medium text-center mb-8">Sign In</h1>
+          <motion.h1 
+            className="text-2xl font-serif font-medium text-center mb-8 bg-gradient-to-r from-gold-dark to-gold bg-clip-text text-transparent"
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.1, duration: 0.4 }}
+          >
+            Sign In
+          </motion.h1>
           
-          <div className="space-y-4">
-            <div>
+          <motion.div 
+            className="space-y-4"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <motion.div variants={itemVariants}>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                 Email
               </label>
@@ -62,11 +80,11 @@ const Profile = () => {
                 type="email"
                 id="email"
                 placeholder="Your email"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold"
+                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gold/60 focus:border-gold transition-colors shadow-sm"
               />
-            </div>
+            </motion.div>
             
-            <div>
+            <motion.div variants={itemVariants}>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                 Password
               </label>
@@ -74,99 +92,106 @@ const Profile = () => {
                 type="password"
                 id="password"
                 placeholder="Your password"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold"
+                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gold/60 focus:border-gold transition-colors shadow-sm"
               />
-            </div>
+            </motion.div>
             
-            <button
-              onClick={handleLogin}
-              className="w-full py-3 bg-gold text-white rounded-lg font-medium hover:bg-gold-dark transition-colors"
-            >
-              Sign In
-            </button>
+            <motion.div variants={itemVariants}>
+              <Button
+                onClick={handleLogin}
+                className="w-full py-6 btn-gradient text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all"
+              >
+                Sign In
+              </Button>
+            </motion.div>
             
-            <p className="text-sm text-center text-gray-600 mt-4">
+            <motion.p className="text-sm text-center text-gray-600 mt-4" variants={itemVariants}>
               Don't have an account?{" "}
-              <a href="#" className="text-gold-dark font-medium">
+              <a href="#" className="text-gold-dark font-medium hover:underline">
                 Sign Up
               </a>
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   return (
     <motion.div 
-      className="h-full p-4 space-y-6"
+      className="h-full pb-20"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
       {/* Profile Header */}
       <motion.div 
-        className="flex items-center py-4"
+        className="bg-gradient-to-r from-gold-dark/10 to-gold-light/10 p-6 rounded-b-2xl shadow-sm mb-6"
         variants={itemVariants}
       >
-        <div className="w-20 h-20 rounded-full overflow-hidden">
-          <img
-            src={userData.avatar}
-            alt={userData.name}
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="ml-4">
-          <h2 className="text-xl font-serif font-medium">{userData.name}</h2>
-          <p className="text-sm text-gray-600">Account settings</p>
+        <div className="flex items-center">
+          <div className="relative">
+            <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-white shadow-md">
+              <img
+                src={userData.avatar}
+                alt={userData.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <button className="absolute bottom-0 right-0 bg-white rounded-full p-1 shadow-md">
+              <Camera className="h-4 w-4 text-gold" />
+            </button>
+          </div>
+          <div className="ml-4">
+            <h2 className="text-xl font-serif font-medium">{userData.name}</h2>
+            <p className="text-sm text-gray-600">{userData.email}</p>
+            <Button variant="outline" className="mt-2 text-xs h-8 px-3 border-gold/30 text-gold-dark hover:bg-gold/5">
+              Edit Profile
+            </Button>
+          </div>
         </div>
       </motion.div>
 
-      {/* Account Settings */}
-      <motion.div className="space-y-4" variants={itemVariants}>
-        <div className="flex justify-between items-center py-3 border-b border-gray-100">
-          <p className="text-sm font-medium">Email</p>
-          <div className="flex items-center">
-            <span className="text-sm text-gray-600 mr-2">{userData.email}</span>
-            <button className="text-sm font-medium text-gold-dark">Change</button>
-          </div>
+      {/* Menu Options */}
+      <motion.div className="px-4 space-y-4" variants={itemVariants}>
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <ProfileMenuItem icon={<Heart className="text-rose-500" />} label="Saved Items" />
+          <ProfileMenuItem icon={<ShoppingBag className="text-emerald-500" />} label="Order History" />
+          <ProfileMenuItem icon={<CreditCard className="text-violet-500" />} label="Payment Methods" />
+          <ProfileMenuItem icon={<Settings className="text-blue-500" />} label="Account Settings" />
         </div>
         
-        <div className="flex justify-between items-center py-3 border-b border-gray-100">
-          <p className="text-sm font-medium">Password</p>
-          <div className="flex items-center">
-            <span className="text-sm text-gray-600 mr-2">••••••</span>
-            <button className="text-sm font-medium text-gold-dark">Change</button>
-          </div>
-        </div>
-        
-        <div className="flex justify-between items-center py-3 border-b border-gray-100">
-          <p className="text-sm font-medium">Shipping address</p>
-          <div className="flex items-center">
-            <span className="text-sm text-gray-600 mr-2">Enter shipping address</span>
-            <button className="text-sm font-medium text-gold-dark">Add</button>
-          </div>
-        </div>
-        
-        <div className="flex justify-between items-center py-3 border-b border-gray-100">
-          <p className="text-sm font-medium">Preferences</p>
-          <div className="flex items-center">
-            <span className="text-sm text-gray-600 mr-2">Manage your email preferences</span>
-            <button className="text-sm font-medium text-gold-dark">Open</button>
-          </div>
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden mt-4">
+          <ProfileMenuItem icon={<HelpCircle className="text-amber-500" />} label="Help & Support" />
         </div>
       </motion.div>
 
       {/* Logout */}
-      <motion.div variants={itemVariants} className="pt-6">
-        <button
+      <motion.div variants={itemVariants} className="px-4 pt-8">
+        <Button
           onClick={handleLogout}
-          className="w-full py-3 border border-gray-300 rounded-lg text-sm font-medium"
+          variant="outline"
+          className="w-full py-6 border-gray-200 hover:bg-gray-50 text-gray-700 rounded-xl flex items-center justify-center shadow-sm"
         >
+          <LogOut className="w-4 h-4 mr-2" />
           Log Out
-        </button>
+        </Button>
       </motion.div>
     </motion.div>
+  );
+};
+
+const ProfileMenuItem = ({ icon, label }: { icon: React.ReactNode, label: string }) => {
+  return (
+    <div className="flex items-center justify-between p-4 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors cursor-pointer">
+      <div className="flex items-center">
+        <div className="w-8 h-8 rounded-full bg-gray-100/80 flex items-center justify-center mr-3">
+          {icon}
+        </div>
+        <span className="font-medium">{label}</span>
+      </div>
+      <ChevronRight className="h-5 w-5 text-gray-400" />
+    </div>
   );
 };
 
