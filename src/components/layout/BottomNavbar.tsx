@@ -1,6 +1,6 @@
 
 import { Link, useLocation } from "react-router-dom";
-import { Home, Search, User } from "lucide-react";
+import { Home, Search, User, MessageSquare } from "lucide-react";
 
 const BottomNavbar = () => {
   const location = useLocation();
@@ -14,7 +14,7 @@ const BottomNavbar = () => {
     <div className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-white border-t border-gray-200 h-16 flex items-center justify-around z-10">
       <Link
         to="/"
-        className={`flex flex-col items-center justify-center w-1/3 py-1 ${
+        className={`flex flex-col items-center justify-center w-1/4 py-1 ${
           isActive("/") ? "text-gold" : "text-gray-500"
         } transition-colors duration-200`}
       >
@@ -24,17 +24,27 @@ const BottomNavbar = () => {
 
       <Link
         to="/explore"
-        className={`flex flex-col items-center justify-center w-1/3 py-1 ${
+        className={`flex flex-col items-center justify-center w-1/4 py-1 ${
           isActive("/explore") ? "text-gold" : "text-gray-500"
         } transition-colors duration-200`}
       >
         <Search className={`h-6 w-6 ${isActive("/explore") && "stroke-gold"}`} />
         <span className="text-xs mt-1 font-medium">Explore</span>
       </Link>
+      
+      <Link
+        to="/messages"
+        className={`flex flex-col items-center justify-center w-1/4 py-1 ${
+          isActive("/messages") ? "text-gold" : "text-gray-500"
+        } transition-colors duration-200`}
+      >
+        <MessageSquare className={`h-6 w-6 ${isActive("/messages") && "stroke-gold"}`} />
+        <span className="text-xs mt-1 font-medium">Messages</span>
+      </Link>
 
       <Link
         to="/profile"
-        className={`flex flex-col items-center justify-center w-1/3 py-1 ${
+        className={`flex flex-col items-center justify-center w-1/4 py-1 ${
           isActive("/profile") ? "text-gold" : "text-gray-500"
         } transition-colors duration-200`}
       >
