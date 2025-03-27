@@ -19,7 +19,7 @@ const AppLayout = () => {
           {/* Placeholder for future icons */}
         </div>
       </header>
-      <main className="page-container bg-gradient-to-b from-white to-secondary">
+      <main className="page-container bg-gradient-to-b from-white to-cream">
         <Outlet />
       </main>
       <BottomNavbar />

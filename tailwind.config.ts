@@ -29,13 +29,13 @@ export default {
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
-				// New teal color palette replacing gold
-				teal: {
-					light: '#81E6D9',
-					DEFAULT: '#2C7A7B',
-					dark: '#1D4044',
+				// New rose gold color palette replacing teal
+				rose: {
+					light: '#F9C4C9',
+					DEFAULT: '#E2909A',
+					dark: '#C97786',
 				},
-				cream: '#FFFDF7',
+				cream: '#FDF8F0',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))'
@@ -112,9 +112,13 @@ export default {
 				'shimmer': {
 					'100%': { transform: 'translateX(100%)' }
 				},
-				'pulse-teal': {
-					'0%, 100%': { boxShadow: '0 0 0 0 rgba(44, 122, 123, 0.4)' },
-					'50%': { boxShadow: '0 0 0 8px rgba(44, 122, 123, 0)' }
+				'pulse-rose': {
+					'0%, 100%': { boxShadow: '0 0 0 0 rgba(226, 144, 154, 0.4)' },
+					'50%': { boxShadow: '0 0 0 8px rgba(226, 144, 154, 0)' }
+				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-5px)' }
 				}
 			},
 			animation: {
@@ -126,7 +130,8 @@ export default {
 				'slide-down': 'slide-down 0.3s ease-out',
 				'scale-in': 'scale-in 0.3s ease-out',
 				'shimmer': 'shimmer 2s infinite',
-				'pulse-teal': 'pulse-teal 2s infinite'
+				'pulse-rose': 'pulse-rose 2s infinite',
+				'float': 'float 3s ease-in-out infinite'
 			}
 		}
 	},

@@ -12,35 +12,35 @@ const BottomNavbar = () => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto z-10">
+    <div className="fixed bottom-4 left-0 right-0 max-w-lg mx-auto z-10 px-4">
       {/* Curved background with shadow */}
-      <div className="bg-white/95 backdrop-blur-md shadow-[0_-4px_20px_rgba(0,0,0,0.07)] rounded-t-2xl h-16 border-t border-gray-100">
+      <div className="bg-white/95 backdrop-blur-md shadow-[0_-4px_20px_rgba(201,119,134,0.1)] rounded-2xl h-16 border border-gray-100">
         <div className="flex items-center justify-around h-full">
           <NavItem 
             to="/" 
             isActive={isActive("/")} 
-            icon={<Home className={`h-5 w-5 transition-colors duration-300 ${isActive("/") ? "fill-teal-light stroke-teal" : "stroke-gray-500"}`} />}
+            icon={<Home className={`h-5 w-5 transition-colors duration-300 ${isActive("/") ? "fill-rose-light stroke-rose" : "stroke-gray-500"}`} />}
             label="Home"
           />
 
           <NavItem 
             to="/explore" 
             isActive={isActive("/explore")} 
-            icon={<Search className={`h-5 w-5 transition-colors duration-300 ${isActive("/explore") ? "stroke-teal" : "stroke-gray-500"}`} />}
+            icon={<Search className={`h-5 w-5 transition-colors duration-300 ${isActive("/explore") ? "stroke-rose" : "stroke-gray-500"}`} />}
             label="Explore"
           />
           
           <NavItem 
             to="/messages" 
             isActive={isActive("/messages")} 
-            icon={<MessageSquare className={`h-5 w-5 transition-colors duration-300 ${isActive("/messages") ? "stroke-teal" : "stroke-gray-500"}`} />}
+            icon={<MessageSquare className={`h-5 w-5 transition-colors duration-300 ${isActive("/messages") ? "stroke-rose" : "stroke-gray-500"}`} />}
             label="Messages"
           />
 
           <NavItem 
             to="/profile" 
             isActive={isActive("/profile")} 
-            icon={<User className={`h-5 w-5 transition-colors duration-300 ${isActive("/profile") ? "stroke-teal" : "stroke-gray-500"}`} />}
+            icon={<User className={`h-5 w-5 transition-colors duration-300 ${isActive("/profile") ? "stroke-rose" : "stroke-gray-500"}`} />}
             label="Profile"
           />
         </div>
@@ -58,15 +58,19 @@ const NavItem = ({ to, isActive, icon, label }: { to: string; isActive: boolean;
       {isActive && (
         <motion.div
           layoutId="nav-indicator"
-          className="absolute -top-1 w-10 h-1 bg-gradient-to-r from-teal-dark to-teal rounded-full"
+          className="absolute -top-1 w-10 h-1 bg-gradient-to-r from-rose-dark to-rose rounded-full"
           initial={false}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         />
       )}
-      <div className={`p-2 ${isActive ? "bg-teal/10 rounded-full" : ""}`}>
+      <motion.div 
+        className={`p-2 ${isActive ? "bg-rose/10 rounded-full" : ""}`}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+      >
         {icon}
-      </div>
-      <span className={`text-xs mt-0.5 font-medium transition-colors duration-300 ${isActive ? "text-teal" : "text-gray-500"}`}>
+      </motion.div>
+      <span className={`text-xs mt-0.5 font-medium transition-colors duration-300 ${isActive ? "text-rose" : "text-gray-500"}`}>
         {label}
       </span>
     </Link>

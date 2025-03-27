@@ -20,7 +20,7 @@ const ProductDetail = () => {
         <p className="text-lg">Product not found</p>
         <button
           onClick={() => navigate(-1)}
-          className="mt-4 text-gold-dark underline"
+          className="mt-4 text-rose-dark underline"
         >
           Go back
         </button>
@@ -48,7 +48,7 @@ const ProductDetail = () => {
         <div className="flex items-center h-14 px-4">
           <button
             onClick={() => navigate(-1)}
-            className="mr-2 text-gray-600 hover:text-gold transition-colors p-2 rounded-full hover:bg-gray-50"
+            className="mr-2 text-gray-600 hover:text-rose transition-colors p-2 rounded-full hover:bg-gray-50"
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
@@ -82,24 +82,26 @@ const ProductDetail = () => {
       >
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-2xl font-serif font-medium bg-gradient-to-r from-gold-dark to-gold bg-clip-text text-transparent">{product.name}</h2>
+            <h2 className="text-2xl font-serif font-medium bg-gradient-to-r from-rose-dark to-rose bg-clip-text text-transparent">{product.name}</h2>
             <p className="text-sm text-gray-500 mt-1">{product.store}</p>
           </div>
           <div className="text-right">
-            <p className="text-xl font-semibold bg-gradient-to-r from-gold-dark to-gold bg-clip-text text-transparent">${product.price}</p>
+            <p className="text-xl font-semibold bg-gradient-to-r from-rose-dark to-rose bg-clip-text text-transparent">${product.price}</p>
           </div>
         </div>
 
         <p className="text-sm text-gray-700 leading-relaxed">{product.description}</p>
 
         <div className="py-2">
-          <Button
-            onClick={handleMessageStore}
-            className="w-full py-6 btn-gradient text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all group"
-          >
-            <MessageCircle className="w-5 h-5 mr-2 group-hover:animate-pulse" />
-            Message Store
-          </Button>
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <Button
+              onClick={handleMessageStore}
+              className="w-full py-6 btn-gradient text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all group"
+            >
+              <MessageCircle className="w-5 h-5 mr-2 group-hover:animate-pulse" />
+              Message Store
+            </Button>
+          </motion.div>
         </div>
       </motion.div>
 
