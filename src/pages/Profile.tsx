@@ -58,7 +58,7 @@ const Profile = () => {
       >
         <div className="w-full max-w-sm">
           <motion.h1 
-            className="text-2xl font-serif font-medium text-center mb-8 bg-gradient-to-r from-gold-dark to-gold bg-clip-text text-transparent"
+            className="text-2xl font-serif font-medium text-center mb-8 bg-gradient-to-r from-teal-dark to-teal bg-clip-text text-transparent"
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.1, duration: 0.4 }}
@@ -80,7 +80,7 @@ const Profile = () => {
                 type="email"
                 id="email"
                 placeholder="Your email"
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gold/60 focus:border-gold transition-colors shadow-sm"
+                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-teal/60 focus:border-teal transition-colors shadow-sm"
               />
             </motion.div>
             
@@ -92,7 +92,7 @@ const Profile = () => {
                 type="password"
                 id="password"
                 placeholder="Your password"
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gold/60 focus:border-gold transition-colors shadow-sm"
+                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-teal/60 focus:border-teal transition-colors shadow-sm"
               />
             </motion.div>
             
@@ -107,7 +107,7 @@ const Profile = () => {
             
             <motion.p className="text-sm text-center text-gray-600 mt-4" variants={itemVariants}>
               Don't have an account?{" "}
-              <a href="#" className="text-gold-dark font-medium hover:underline">
+              <a href="#" className="text-teal-dark font-medium hover:underline">
                 Sign Up
               </a>
             </motion.p>
@@ -126,7 +126,7 @@ const Profile = () => {
     >
       {/* Profile Header */}
       <motion.div 
-        className="bg-gradient-to-r from-gold-dark/10 to-gold-light/10 p-6 rounded-b-2xl shadow-sm mb-6"
+        className="bg-gradient-to-r from-teal-dark/10 to-teal-light/10 p-6 rounded-b-2xl shadow-sm mb-6"
         variants={itemVariants}
       >
         <div className="flex items-center">
@@ -139,13 +139,13 @@ const Profile = () => {
               />
             </div>
             <button className="absolute bottom-0 right-0 bg-white rounded-full p-1 shadow-md">
-              <Camera className="h-4 w-4 text-gold" />
+              <Camera className="h-4 w-4 text-teal" />
             </button>
           </div>
           <div className="ml-4">
             <h2 className="text-xl font-serif font-medium">{userData.name}</h2>
             <p className="text-sm text-gray-600">{userData.email}</p>
-            <Button variant="outline" className="mt-2 text-xs h-8 px-3 border-gold/30 text-gold-dark hover:bg-gold/5">
+            <Button variant="outline" className="mt-2 text-xs h-8 px-3 border-teal/30 text-teal-dark hover:bg-teal/5">
               Edit Profile
             </Button>
           </div>

@@ -29,10 +29,11 @@ export default {
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
-				gold: {
-					light: '#F5D089',
-					DEFAULT: '#D4AF37',
-					dark: '#B8860B',
+				// New teal color palette replacing gold
+				teal: {
+					light: '#81E6D9',
+					DEFAULT: '#2C7A7B',
+					dark: '#1D4044',
 				},
 				cream: '#FFFDF7',
 				primary: {
@@ -111,9 +112,9 @@ export default {
 				'shimmer': {
 					'100%': { transform: 'translateX(100%)' }
 				},
-				'pulse-gold': {
-					'0%, 100%': { boxShadow: '0 0 0 0 rgba(212, 175, 55, 0.4)' },
-					'50%': { boxShadow: '0 0 0 8px rgba(212, 175, 55, 0)' }
+				'pulse-teal': {
+					'0%, 100%': { boxShadow: '0 0 0 0 rgba(44, 122, 123, 0.4)' },
+					'50%': { boxShadow: '0 0 0 8px rgba(44, 122, 123, 0)' }
 				}
 			},
 			animation: {
@@ -125,7 +126,7 @@ export default {
 				'slide-down': 'slide-down 0.3s ease-out',
 				'scale-in': 'scale-in 0.3s ease-out',
 				'shimmer': 'shimmer 2s infinite',
-				'pulse-gold': 'pulse-gold 2s infinite'
+				'pulse-teal': 'pulse-teal 2s infinite'
 			}
 		}
 	},

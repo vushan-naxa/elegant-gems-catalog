@@ -1,12 +1,10 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Search, PlusCircle } from "lucide-react";
+import { Search, PlusCircle } from "lucide-react";
 import { conversations } from "@/data/mockData";
 import { motion } from "framer-motion";
 
 const Messages = () => {
-  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredConversations, setFilteredConversations] = useState(conversations);
 
@@ -59,12 +57,6 @@ const Messages = () => {
         transition={{ duration: 0.3 }}
       >
         <div className="flex items-center h-14 px-4">
-          <button 
-            onClick={() => navigate(-1)} 
-            className="mr-2 text-gray-600 hover:text-gold transition-colors p-2 rounded-full hover:bg-gray-50"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </button>
           <h1 className="text-lg font-serif">Messages</h1>
         </div>
       </motion.div>
@@ -85,20 +77,20 @@ const Messages = () => {
             placeholder="Search conversations"
             value={searchQuery}
             onChange={handleSearch}
-            className="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold/60 transition-colors shadow-sm"
+            className="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-teal focus:border-teal/60 transition-colors shadow-sm"
           />
         </div>
       </motion.div>
 
-      {/* Conversations List */}
+      {/* Conversations List - with scrollbar fixes */}
       <motion.div 
-        className="flex-1 overflow-y-auto"
+        className="flex-1 overflow-y-auto scrollbar-hide"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
         {filteredConversations.length > 0 ? (
-          filteredConversations.map((conversation, index) => (
+          filteredConversations.map((conversation) => (
             <motion.div
               key={conversation.id}
               className="px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
@@ -115,7 +107,7 @@ const Messages = () => {
                     />
                   </div>
                   {!conversation.lastMessage.read && (
-                    <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-gold animate-pulse-gold" />
+                    <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-teal animate-pulse-teal" />
                   )}
                 </div>
                 <div className="ml-3 flex-1">
