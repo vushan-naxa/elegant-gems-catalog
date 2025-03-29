@@ -1,10 +1,12 @@
-import { useState, useRef, useEffect } from 'react';
+
+import { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/providers/AuthProvider';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import MapSelector from '@/components/map/MapSelector';
 
 type StoreOwnerRegistrationProps = {
   onSubmit: () => void;
@@ -12,7 +14,6 @@ type StoreOwnerRegistrationProps = {
 
 const StoreOwnerRegistration = ({ onSubmit }: StoreOwnerRegistrationProps) => {
   const [loading, setLoading] = useState(false);
-  const addressInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -22,36 +23,23 @@ const StoreOwnerRegistration = ({ onSubmit }: StoreOwnerRegistrationProps) => {
     confirmPassword: '',
     contactInfo: '',
     address: '',
-    latitude: null as number | null,
-    longitude: null as number | null
+    latitude: 27.7172 as number, // Default to Kathmandu
+    longitude: 85.3240 as number // Default to Kathmandu
   });
-
-  useEffect(() => {
-    if (window.google && addressInputRef.current) {
-      const autocomplete = new window.google.maps.places.Autocomplete(addressInputRef.current, {
-        types: ['address'],
-        componentRestrictions: { country: 'np' } // Adjust country as needed
-      });
-
-      autocomplete.addListener('place_changed', () => {
-        const place = autocomplete.getPlace();
-        if (place.geometry && place.geometry.location) {
-          setFormData(prev => ({
-            ...prev,
-            address: place.formatted_address || '',
-            latitude: place.geometry.location.lat(),
-            longitude: place.geometry.location.lng()
-          }));
-        }
-      });
-    }
-  }, []);
 
   const { signUp } = useAuth();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleLocationSelect = (lat: number, lng: number) => {
+    setFormData(prev => ({
+      ...prev,
+      latitude: lat,
+      longitude: lng
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -219,15 +207,23 @@ const StoreOwnerRegistration = ({ onSubmit }: StoreOwnerRegistrationProps) => {
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="address">Store Address</Label>
+        <Label htmlFor="address">Store Address (Optional)</Label>
         <Input
-          ref={addressInputRef}
           id="address"
           name="address"
-          placeholder="Enter store address"
+          placeholder="Enter store address description"
           value={formData.address}
           onChange={handleInputChange}
-          required
+        />
+      </div>
+      
+      <div className="space-y-2">
+        <Label>Store Location</Label>
+        <p className="text-xs text-gray-500 mb-2">Drag the marker or click on the map to set your store location</p>
+        <MapSelector
+          initialLat={formData.latitude}
+          initialLng={formData.longitude}
+          onLocationSelect={handleLocationSelect}
         />
       </div>
       

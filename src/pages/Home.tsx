@@ -1,15 +1,26 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import SectionHeader from "@/components/ui/SectionHeader";
 import ProductCard from "@/components/ui/ProductCard";
 import CategoryCard from "@/components/ui/CategoryCard";
 import StoreCard from "@/components/ui/StoreCard";
+import NearbyStores from "@/components/map/NearbyStores";
 import { getFeaturedProducts, products, categories, stores } from "@/data/mockData";
 import { motion } from "framer-motion";
+import { getUserLocation, saveUserLocation } from "@/lib/location-utils";
 
 const Home = () => {
   const featuredProducts = getFeaturedProducts();
   const newArrivals = products.slice(3, 6);
+  const [showLocationRequest, setShowLocationRequest] = useState(false);
+
+  useEffect(() => {
+    // Check if user location is already saved
+    const savedLocation = localStorage.getItem('user_location');
+    if (!savedLocation) {
+      setShowLocationRequest(true);
+    }
+  }, []);
 
   // Animation variants
   const containerVariants = {
@@ -85,6 +96,15 @@ const Home = () => {
         </div>
       </motion.section>
 
+      {/* Nearby Stores */}
+      <motion.section 
+        className="section-container"
+        variants={sectionVariants}
+      >
+        <SectionHeader title="Stores near you" actionText="See All" actionLink="/explore?view=stores" />
+        <NearbyStores />
+      </motion.section>
+
       {/* Categories */}
       <motion.section 
         className="section-container"
@@ -94,19 +114,6 @@ const Home = () => {
         <div className="grid grid-cols-4 gap-4">
           {categories.map((category, index) => (
             <CategoryCard key={category.id} category={category} index={index} />
-          ))}
-        </div>
-      </motion.section>
-
-      {/* Stores near you */}
-      <motion.section 
-        className="section-container"
-        variants={sectionVariants}
-      >
-        <SectionHeader title="Stores near you" actionText="See All" actionLink="/explore?view=stores" />
-        <div className="grid grid-cols-3 gap-5">
-          {stores.map((store, index) => (
-            <StoreCard key={store.id} store={store} index={index} />
           ))}
         </div>
       </motion.section>

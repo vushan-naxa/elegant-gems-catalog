@@ -1,10 +1,12 @@
 
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { Search, SlidersHorizontal, X, MapPin } from "lucide-react";
 import ProductCard from "@/components/ui/ProductCard";
 import { searchProducts, products, categories } from "@/data/mockData";
 import { motion, AnimatePresence } from "framer-motion";
+import { Slider } from "@/components/ui/slider";
+import { calculateDistance, getSavedUserLocation } from "@/lib/location-utils";
 
 const Explore = () => {
   const location = useLocation();
@@ -14,7 +16,9 @@ const Explore = () => {
   const [searchResults, setSearchResults] = useState(products);
   const [priceRange, setPriceRange] = useState({ min: 0, max: 5000 });
   const [selectedPurity, setSelectedPurity] = useState<string[]>([]);
+  const [maxDistance, setMaxDistance] = useState<number>(25); // Default 25km
   const [isLoading, setIsLoading] = useState(false);
+  const userLocation = getSavedUserLocation();
 
   // Extract search params
   useEffect(() => {
@@ -22,6 +26,11 @@ const Explore = () => {
     const categoryId = params.get("category");
     const storeId = params.get("store");
     const query = params.get("q");
+    const view = params.get("view");
+    
+    if (view === "stores") {
+      setActiveTab("stores");
+    }
     
     if (query) {
       setSearchQuery(query);
@@ -85,6 +94,16 @@ const Explore = () => {
         filtered = filtered.filter(product => selectedPurity.includes(product.purity));
       }
       
+      // Filter by distance if user location is available
+      if (userLocation && activeTab === "stores") {
+        filtered = filtered.filter(product => {
+          // This is simulated - in a real app we would get the store's location
+          // and calculate the distance
+          const distance = Math.random() * 50; // Random distance for demo
+          return distance <= maxDistance;
+        });
+      }
+      
       setSearchResults(filtered);
       setFilterVisible(false);
       setIsLoading(false);
@@ -94,6 +113,7 @@ const Explore = () => {
   const resetFilters = () => {
     setPriceRange({ min: 0, max: 5000 });
     setSelectedPurity([]);
+    setMaxDistance(25);
   };
 
   return (
@@ -204,6 +224,29 @@ const Explore = () => {
                 ))}
               </div>
             </div>
+            
+            {userLocation && activeTab === "stores" && (
+              <div className="mb-5">
+                <div className="flex items-center">
+                  <MapPin className="h-4 w-4 text-gold-dark mr-2" />
+                  <p className="text-sm font-medium">Distance</p>
+                </div>
+                <p className="text-xs text-gray-500 mb-2">Show stores within {maxDistance} km</p>
+                <Slider 
+                  defaultValue={[maxDistance]} 
+                  value={[maxDistance]}
+                  min={1} 
+                  max={50} 
+                  step={1} 
+                  onValueChange={(value) => setMaxDistance(value[0])}
+                  className="mb-2"
+                />
+                <div className="flex justify-between text-xs text-gray-500">
+                  <span>1 km</span>
+                  <span>50 km</span>
+                </div>
+              </div>
+            )}
             
             <div className="flex space-x-3">
               <button
