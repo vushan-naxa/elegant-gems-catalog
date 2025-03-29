@@ -1,23 +1,25 @@
 
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { Search, SlidersHorizontal, X, MapPin } from "lucide-react";
+import { Search, SlidersHorizontal, X, MapPin, Loader2 } from "lucide-react";
 import ProductCard from "@/components/ui/ProductCard";
-import { searchProducts, products, categories } from "@/data/mockData";
 import { motion, AnimatePresence } from "framer-motion";
 import { Slider } from "@/components/ui/slider";
-import { calculateDistance, getSavedUserLocation } from "@/lib/location-utils";
+import { calculateDistance, getSavedUserLocation, getUserLocation, saveUserLocation } from "@/lib/location-utils";
+import { useProducts, Product } from "@/hooks/use-products";
+import { useStores } from "@/hooks/use-stores";
+import { toast } from "@/hooks/use-toast";
+import StoreCard from "@/components/ui/StoreCard";
 
 const Explore = () => {
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterVisible, setFilterVisible] = useState(false);
   const [activeTab, setActiveTab] = useState("products");
-  const [searchResults, setSearchResults] = useState(products);
   const [priceRange, setPriceRange] = useState({ min: 0, max: 5000 });
   const [selectedPurity, setSelectedPurity] = useState<string[]>([]);
   const [maxDistance, setMaxDistance] = useState<number>(25); // Default 25km
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
   const userLocation = getSavedUserLocation();
 
   // Extract search params
@@ -34,35 +36,28 @@ const Explore = () => {
     
     if (query) {
       setSearchQuery(query);
-      handleSearch(query);
-    } else if (categoryId || storeId) {
-      // Simulate search based on category or store
-      setIsLoading(true);
-      setTimeout(() => {
-        setSearchResults(products.slice(0, 6));
-        setIsLoading(false);
-      }, 800);
-    } else {
-      setSearchResults(products);
     }
+    
+    // Reset filters when navigation params change
+    setPriceRange({ min: 0, max: 5000 });
+    setSelectedPurity([]);
   }, [location.search]);
 
-  const handleSearch = (query: string) => {
-    setIsLoading(true);
-    
-    // Simulate API call with a slight delay
-    setTimeout(() => {
-      if (query.trim()) {
-        setSearchResults(searchProducts(query));
-      } else {
-        setSearchResults(products);
-      }
-      setIsLoading(false);
-    }, 600);
-  };
+  // Fetch data based on filters
+  const { data: products, isLoading: productsLoading } = useProducts({
+    storeId: new URLSearchParams(location.search).get("store") || undefined,
+    categoryId: new URLSearchParams(location.search).get("category") || undefined,
+    searchQuery: searchQuery || new URLSearchParams(location.search).get("q") || undefined,
+    minPrice: priceRange.min,
+    maxPrice: priceRange.max,
+    purity: selectedPurity.length > 0 ? selectedPurity : undefined,
+    maxDistance: userLocation && activeTab === "stores" ? maxDistance : undefined
+  });
+
+  const { data: stores, isLoading: storesLoading } = useStores();
 
   const handleSearchSubmit = () => {
-    handleSearch(searchQuery);
+    // Just let the query run with the searchQuery state
   };
 
   const toggleFilter = () => {
@@ -78,36 +73,8 @@ const Explore = () => {
   };
 
   const applyFilters = () => {
-    setIsLoading(true);
-    
-    // Simulate API call with a slight delay
-    setTimeout(() => {
-      let filtered = products;
-      
-      // Filter by price
-      filtered = filtered.filter(
-        product => product.price >= priceRange.min && product.price <= priceRange.max
-      );
-      
-      // Filter by purity
-      if (selectedPurity.length > 0) {
-        filtered = filtered.filter(product => selectedPurity.includes(product.purity));
-      }
-      
-      // Filter by distance if user location is available
-      if (userLocation && activeTab === "stores") {
-        filtered = filtered.filter(product => {
-          // This is simulated - in a real app we would get the store's location
-          // and calculate the distance
-          const distance = Math.random() * 50; // Random distance for demo
-          return distance <= maxDistance;
-        });
-      }
-      
-      setSearchResults(filtered);
-      setFilterVisible(false);
-      setIsLoading(false);
-    }, 600);
+    // Filters are applied via the useProducts hook
+    setFilterVisible(false);
   };
 
   const resetFilters = () => {
@@ -115,6 +82,35 @@ const Explore = () => {
     setSelectedPurity([]);
     setMaxDistance(25);
   };
+
+  const requestLocation = async () => {
+    setIsLocating(true);
+    try {
+      const position = await getUserLocation();
+      const { latitude, longitude } = position.coords;
+      saveUserLocation(latitude, longitude);
+      toast({
+        title: "Location updated",
+        description: "We'll show you nearby stores based on your location",
+      });
+      // Force re-render to pick up the new location
+      window.location.reload();
+    } catch (error) {
+      console.error('Error getting location:', error);
+      toast({
+        title: "Could not get your location",
+        description: "Please check your browser permissions and try again",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLocating(false);
+    }
+  };
+
+  const isLoading = activeTab === "products" ? productsLoading : storesLoading;
+  const isDataEmpty = activeTab === "products" ? 
+    (!products || products.length === 0) : 
+    (!stores || stores.length === 0);
 
   return (
     <div className="pb-8">
@@ -170,6 +166,27 @@ const Explore = () => {
         </div>
       </motion.div>
 
+      {/* Location Request Banner */}
+      {!userLocation && (
+        <div className="mx-4 mt-3 p-3 bg-cream rounded-lg text-sm flex items-center justify-between">
+          <div className="flex items-center">
+            <MapPin className="h-4 w-4 text-gold-dark mr-2" />
+            <span>Show items near me</span>
+          </div>
+          <button 
+            onClick={requestLocation}
+            className="px-3 py-1 bg-gold text-white text-xs rounded-full"
+            disabled={isLocating}
+          >
+            {isLocating ? (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            ) : (
+              'Share location'
+            )}
+          </button>
+        </div>
+      )}
+
       {/* Filter Panel */}
       <AnimatePresence>
         {filterVisible && (
@@ -193,16 +210,44 @@ const Explore = () => {
             <div className="mb-5">
               <p className="text-sm font-medium mb-2">Price range</p>
               <div className="flex items-center justify-between space-x-2">
-                <button className={`px-3 py-1.5 text-xs rounded-full transition-colors ${priceRange.min === 0 && priceRange.max === 5000 ? 'bg-gold text-white shadow-md' : 'bg-gray-100'}`}>
+                <button 
+                  className={`px-3 py-1.5 text-xs rounded-full transition-colors ${
+                    priceRange.min === 0 && priceRange.max === 5000 
+                      ? 'bg-gold text-white shadow-md' 
+                      : 'bg-gray-100'
+                  }`}
+                  onClick={() => setPriceRange({ min: 0, max: 5000 })}
+                >
                   Any price
                 </button>
-                <button className={`px-3 py-1.5 text-xs rounded-full transition-colors ${priceRange.min === 0 && priceRange.max === 1000 ? 'bg-gold text-white shadow-md' : 'bg-gray-100'}`}>
+                <button 
+                  className={`px-3 py-1.5 text-xs rounded-full transition-colors ${
+                    priceRange.min === 0 && priceRange.max === 1000 
+                      ? 'bg-gold text-white shadow-md' 
+                      : 'bg-gray-100'
+                  }`}
+                  onClick={() => setPriceRange({ min: 0, max: 1000 })}
+                >
                   Under $1000
                 </button>
-                <button className={`px-3 py-1.5 text-xs rounded-full transition-colors ${priceRange.min === 1000 && priceRange.max === 5000 ? 'bg-gold text-white shadow-md' : 'bg-gray-100'}`}>
+                <button 
+                  className={`px-3 py-1.5 text-xs rounded-full transition-colors ${
+                    priceRange.min === 1000 && priceRange.max === 5000 
+                      ? 'bg-gold text-white shadow-md' 
+                      : 'bg-gray-100'
+                  }`}
+                  onClick={() => setPriceRange({ min: 1000, max: 5000 })}
+                >
                   $1000 - $5000
                 </button>
-                <button className={`px-3 py-1.5 text-xs rounded-full transition-colors ${priceRange.min === 5000 ? 'bg-gold text-white shadow-md' : 'bg-gray-100'}`}>
+                <button 
+                  className={`px-3 py-1.5 text-xs rounded-full transition-colors ${
+                    priceRange.min === 5000 
+                      ? 'bg-gold text-white shadow-md' 
+                      : 'bg-gray-100'
+                  }`}
+                  onClick={() => setPriceRange({ min: 5000, max: 999999 })}
+                >
                   $5000+
                 </button>
               </div>
@@ -225,13 +270,13 @@ const Explore = () => {
               </div>
             </div>
             
-            {userLocation && activeTab === "stores" && (
+            {userLocation && (
               <div className="mb-5">
                 <div className="flex items-center">
                   <MapPin className="h-4 w-4 text-gold-dark mr-2" />
                   <p className="text-sm font-medium">Distance</p>
                 </div>
-                <p className="text-xs text-gray-500 mb-2">Show stores within {maxDistance} km</p>
+                <p className="text-xs text-gray-500 mb-2">Show items within {maxDistance} km</p>
                 <Slider 
                   defaultValue={[maxDistance]} 
                   value={[maxDistance]}
@@ -266,8 +311,8 @@ const Explore = () => {
         )}
       </AnimatePresence>
 
-      {/* Search Results */}
-      <div className="grid grid-cols-2 gap-4 p-4">
+      {/* Results Display */}
+      <div className={`${activeTab === "products" ? "grid grid-cols-2" : "flex flex-col"} gap-4 p-4`}>
         {isLoading ? (
           // Skeleton loaders
           Array.from({ length: 4 }).map((_, index) => (
@@ -277,14 +322,56 @@ const Explore = () => {
               <div className="h-3 bg-gray-200 rounded mt-2 w-1/2"></div>
             </div>
           ))
-        ) : searchResults.length > 0 ? (
-          searchResults.map((product, index) => (
-            <ProductCard key={product.id} product={product} index={index} />
-          ))
-        ) : (
+        ) : isDataEmpty ? (
           <div className="col-span-2 py-8 text-center text-gray-500">
             <p>No items found matching your criteria</p>
           </div>
+        ) : activeTab === "products" ? (
+          // Product results
+          products?.map((product, index) => (
+            <ProductCard 
+              key={product.id} 
+              product={{
+                id: product.id,
+                name: product.name,
+                description: product.description || '',
+                price: product.price,
+                image: product.images && product.images.length > 0 
+                  ? product.images[0] as string 
+                  : 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8Z29sZCUyMHJpbmd8ZW58MHx8MHx8&auto=format&fit=crop&w=800&q=60',
+                purity: product.purity,
+                category: product.category_id || '',
+                store: product.stores?.name || 'Unknown Store',
+                storeId: product.store_id,
+                weight: 0, // Placeholder since we don't have this data
+                available: true
+              }} 
+              index={index} 
+            />
+          ))
+        ) : (
+          // Store results
+          stores?.map((store, index) => (
+            <div key={store.id} className="mb-2">
+              <StoreCard 
+                store={{
+                  id: store.id,
+                  name: store.name,
+                  location: store.address || 'No address',
+                  image: store.logo_url || 'https://images.unsplash.com/photo-1534531173927-aeb928d54385?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTl8fGpld2Vscnl8ZW58MHx8MHx8&auto=format&fit=crop&w=800&q=60',
+                  distance: store.latitude && store.longitude && userLocation 
+                    ? `${calculateDistance(
+                        userLocation.latitude,
+                        userLocation.longitude,
+                        store.latitude,
+                        store.longitude
+                      ).toFixed(1)} km` 
+                    : undefined
+                }}
+                index={index}
+              />
+            </div>
+          ))
         )}
       </div>
     </div>

@@ -1,6 +1,7 @@
 
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/providers/AuthProvider';
+import { toast } from '@/hooks/use-toast';
 
 type ProtectedRouteProps = {
   children: React.ReactNode;
@@ -31,11 +32,22 @@ const ProtectedRoute = ({
 
   // Check if user is authenticated
   if (!user && !isGuest) {
+    toast({
+      title: "Authentication required",
+      description: "Please login to access this page",
+      variant: "destructive",
+    });
     return <Navigate to="/auth" />;
   }
 
   // Check if user has required role
   if (requiredRole && userRole !== requiredRole) {
+    toast({
+      title: "Access restricted",
+      description: `This page is only accessible to ${requiredRole}s`,
+      variant: "destructive",
+    });
+    
     // Redirect users to appropriate page based on their role
     if (userRole === 'store_owner') {
       return <Navigate to="/store" />;

@@ -1,7 +1,7 @@
 
-import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { getSavedUserLocation, calculateDistance } from '@/lib/location-utils';
 
 export type Product = {
   id: string;
@@ -20,7 +20,10 @@ export type Product = {
     name: string;
     logo_url: string | null;
     description: string | null;
+    latitude: number | null;
+    longitude: number | null;
   } | null;
+  distance?: number;
 };
 
 export function useProducts(options?: { 
@@ -28,9 +31,16 @@ export function useProducts(options?: {
   categoryId?: string;
   featured?: boolean;
   limit?: number;
+  searchQuery?: string;
+  maxDistance?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  purity?: string[];
 }) {
+  const userLocation = getSavedUserLocation();
+  
   return useQuery({
-    queryKey: ['products', options],
+    queryKey: ['products', options, userLocation],
     queryFn: async () => {
       let query = supabase
         .from('products')
@@ -40,7 +50,9 @@ export function useProducts(options?: {
             id,
             name,
             logo_url,
-            description
+            description,
+            latitude,
+            longitude
           )
         `);
       
@@ -51,6 +63,22 @@ export function useProducts(options?: {
       
       if (options?.categoryId) {
         query = query.eq('category_id', options.categoryId);
+      }
+      
+      if (options?.searchQuery) {
+        query = query.or(`name.ilike.%${options.searchQuery}%,description.ilike.%${options.searchQuery}%`);
+      }
+      
+      if (options?.minPrice !== undefined) {
+        query = query.gte('price', options.minPrice);
+      }
+      
+      if (options?.maxPrice !== undefined) {
+        query = query.lte('price', options.maxPrice);
+      }
+      
+      if (options?.purity && options.purity.length > 0) {
+        query = query.in('purity', options.purity);
       }
       
       // Apply limit
@@ -67,7 +95,32 @@ export function useProducts(options?: {
         throw error;
       }
       
-      return data as Product[];
+      let products = data as Product[];
+      
+      // Calculate distance if userLocation is available and maxDistance is set
+      if (userLocation && options?.maxDistance) {
+        products = products
+          .map(product => {
+            const storeLatitude = product.stores?.latitude;
+            const storeLongitude = product.stores?.longitude;
+            
+            if (storeLatitude && storeLongitude) {
+              const distance = calculateDistance(
+                userLocation.latitude,
+                userLocation.longitude,
+                storeLatitude,
+                storeLongitude
+              );
+              return { ...product, distance };
+            }
+            
+            return { ...product, distance: Infinity };
+          })
+          .filter(product => product.distance <= options.maxDistance)
+          .sort((a, b) => (a.distance || Infinity) - (b.distance || Infinity));
+      }
+      
+      return products;
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
