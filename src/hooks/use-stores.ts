@@ -8,6 +8,8 @@ export type Store = {
   description: string | null;
   logo_url: string | null;
   owner_id: string;
+  latitude: number | null;
+  longitude: number | null;
   created_at: string;
   updated_at: string;
 };
