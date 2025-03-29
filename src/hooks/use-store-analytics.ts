@@ -53,7 +53,7 @@ export const useStoreAnalytics = (storeId: string | null) => {
         // Get conversations for store
         const { data: conversations, error: convoError } = await supabase
           .from('conversations')
-          .select('customer_id')
+          .select('id, customer_id')  // Added 'id' to the select query
           .eq('store_id', storeId);
           
         if (convoError) throw convoError;
