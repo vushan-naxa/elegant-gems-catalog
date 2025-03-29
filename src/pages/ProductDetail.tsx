@@ -1,3 +1,5 @@
+
+import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -75,14 +77,59 @@ const ProductDetail = () => {
     }
   };
   
-  // Render a loading state or the actual product detail
-  // This is just a placeholder - you'd implement the actual UI here
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-rose-500"></div>
+      </div>
+    );
+  }
+  
+  if (!product) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-800">Product not found</h1>
+          <p className="mt-2 text-gray-600">The product you're looking for doesn't exist or has been removed.</p>
+        </div>
+      </div>
+    );
+  }
   
   return (
-    <div>
-      {/* Product detail implementation would go here */}
-      {/* This would include the product info, images, and a "Contact Store" button */}
-      {/* The startConversation function would be called when clicking that button */}
+    <div className="container mx-auto px-4 py-8">
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="md:flex">
+          <div className="md:w-1/2">
+            <img 
+              src={product.images?.[0] || '/placeholder.svg'} 
+              alt={product.name} 
+              className="w-full h-64 md:h-auto object-cover"
+            />
+          </div>
+          <div className="p-6 md:w-1/2">
+            <h1 className="text-2xl font-bold text-gray-800">{product.name}</h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Store: {product.stores?.name || 'Unknown Store'}
+            </p>
+            <div className="flex items-center mt-3">
+              <span className="bg-rose-100 text-rose-800 px-2 py-1 rounded text-xs font-semibold">
+                {product.metal_type} • {product.purity}
+              </span>
+            </div>
+            <p className="mt-4 text-gray-600">{product.description || 'No description available.'}</p>
+            <div className="mt-6">
+              <p className="text-3xl font-bold text-rose-600">₹{product.price.toLocaleString()}</p>
+            </div>
+            <button
+              onClick={startConversation}
+              className="mt-6 w-full bg-rose-500 hover:bg-rose-600 text-white py-2 px-4 rounded-md transition duration-200"
+            >
+              Contact Store
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
