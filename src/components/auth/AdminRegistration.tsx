@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/providers/AuthProvider';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 type AdminRegistrationProps = {
   onSubmit: () => void;
@@ -18,7 +19,7 @@ const AdminRegistration = ({ onSubmit }: AdminRegistrationProps) => {
     email: '',
     password: '',
     confirmPassword: '',
-    adminCode: '' // Special code to verify admin registration
+    adminCode: ''
   });
 
   const { signUp } = useAuth();
@@ -31,11 +32,17 @@ const AdminRegistration = ({ onSubmit }: AdminRegistrationProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Simple admin verification - in a real app, use a more secure method
-    if (formData.adminCode !== 'ADMIN123') {
+    // Validate admin code against database
+    const { data: adminCodeData, error: codeError } = await supabase
+      .from('admin_codes')
+      .select('code')
+      .eq('code', formData.adminCode)
+      .single();
+
+    if (codeError || !adminCodeData) {
       toast({
         title: "Invalid admin code",
-        description: "Please enter a valid administrator code",
+        description: "The provided admin code is incorrect",
         variant: "destructive",
       });
       return;
@@ -55,7 +62,8 @@ const AdminRegistration = ({ onSubmit }: AdminRegistrationProps) => {
     try {
       const metadata = {
         first_name: formData.firstName,
-        last_name: formData.lastName
+        last_name: formData.lastName,
+        role: 'admin'
       };
       
       const { error } = await signUp(
@@ -164,12 +172,14 @@ const AdminRegistration = ({ onSubmit }: AdminRegistrationProps) => {
           id="adminCode"
           name="adminCode"
           type="password"
-          placeholder="Enter admin code"
+          placeholder="Enter admin verification code"
           required
           value={formData.adminCode}
           onChange={handleInputChange}
         />
-        <p className="text-xs text-muted-foreground">Enter the administrator verification code</p>
+        <p className="text-xs text-muted-foreground">
+          Enter the administrator verification code
+        </p>
       </div>
       
       <Button 

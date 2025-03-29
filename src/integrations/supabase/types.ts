@@ -9,6 +9,24 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_codes: {
+        Row: {
+          code: string
+          created_at: string | null
+          id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          id?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
@@ -248,28 +266,40 @@ export type Database = {
       }
       stores: {
         Row: {
+          address: string | null
+          contact_info: string | null
           created_at: string
           description: string | null
           id: string
+          latitude: number | null
           logo_url: string | null
+          longitude: number | null
           name: string
           owner_id: string
           updated_at: string
         }
         Insert: {
+          address?: string | null
+          contact_info?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          latitude?: number | null
           logo_url?: string | null
+          longitude?: number | null
           name: string
           owner_id: string
           updated_at?: string
         }
         Update: {
+          address?: string | null
+          contact_info?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          latitude?: number | null
           logo_url?: string | null
+          longitude?: number | null
           name?: string
           owner_id?: string
           updated_at?: string
