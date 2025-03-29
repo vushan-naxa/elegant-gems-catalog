@@ -3,12 +3,15 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
+import { useGuestSession } from '@/hooks/use-guest-session';
 
 type AuthContextType = {
   session: Session | null;
   user: User | null;
   userRole: 'customer' | 'store_owner' | 'admin' | null;
   isLoading: boolean;
+  isGuest: boolean;
+  guestId: string | null;
   signIn: (email: string, password: string) => Promise<{
     error: Error | null;
     data: { session: Session | null; user: User | null } | null;
@@ -28,6 +31,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [userRole, setUserRole] = useState<'customer' | 'store_owner' | 'admin' | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isGuest, setIsGuest] = useState(false);
+  const { guestId, clearGuestSession } = useGuestSession();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,8 +42,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Fetch user role if authenticated
+        // Reset guest status when authenticated
         if (session?.user) {
+          setIsGuest(false);
+          
+          // Fetch user role if authenticated (in a setTimeout to avoid deadlock)
           setTimeout(() => {
             fetchUserRole(session.user.id);
           }, 0);
@@ -66,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('role')
+        .select('role, first_name, last_name')
         .eq('id', userId)
         .single();
 
@@ -77,6 +85,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (data) {
         setUserRole(data.role as 'customer' | 'store_owner' | 'admin');
+        
+        // Store user profile data in localStorage for quick access
+        localStorage.setItem('user_profile', JSON.stringify({
+          role: data.role,
+          firstName: data.first_name,
+          lastName: data.last_name
+        }));
       }
     } catch (error) {
       console.error('Error fetching user role:', error);
@@ -85,6 +100,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
+      // Clear any guest session when signing in
+      if (isGuest) {
+        setIsGuest(false);
+        clearGuestSession();
+      }
+      
       return await supabase.auth.signInWithPassword({ email, password });
     } catch (error) {
       console.error('Error signing in:', error);
@@ -99,6 +120,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     metadata?: any
   ) => {
     try {
+      // Clear any guest session when signing up
+      if (isGuest) {
+        setIsGuest(false);
+        clearGuestSession();
+      }
+      
       return await supabase.auth.signUp({
         email,
         password,
@@ -117,6 +144,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
+      // Clear localStorage cached profile
+      localStorage.removeItem('user_profile');
+      
+      // Clear any guest session
+      if (isGuest) {
+        setIsGuest(false);
+        clearGuestSession();
+      }
+      
       await supabase.auth.signOut();
       navigate('/auth');
     } catch (error) {
@@ -126,6 +162,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const continueAsGuest = () => {
     // Set as guest and redirect to home
+    setIsGuest(true);
     setUserRole('customer');
     navigate('/');
   };
@@ -137,6 +174,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         userRole,
         isLoading,
+        isGuest,
+        guestId,
         signIn,
         signUp,
         signOut,

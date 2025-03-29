@@ -5,13 +5,15 @@ import { useAuth } from '@/providers/AuthProvider';
 type ProtectedRouteProps = {
   children: React.ReactNode;
   requiredRole?: 'customer' | 'store_owner' | 'admin';
+  allowGuest?: boolean;
 };
 
 const ProtectedRoute = ({ 
   children, 
-  requiredRole 
+  requiredRole,
+  allowGuest = false
 }: ProtectedRouteProps) => {
-  const { user, userRole, isLoading } = useAuth();
+  const { user, userRole, isLoading, isGuest } = useAuth();
 
   // Show loading state
   if (isLoading) {
@@ -22,8 +24,13 @@ const ProtectedRoute = ({
     );
   }
 
+  // Allow guest access if specified
+  if (allowGuest && isGuest && (!requiredRole || requiredRole === 'customer')) {
+    return <>{children}</>;
+  }
+
   // Check if user is authenticated
-  if (!user) {
+  if (!user && !isGuest) {
     return <Navigate to="/auth" />;
   }
 
