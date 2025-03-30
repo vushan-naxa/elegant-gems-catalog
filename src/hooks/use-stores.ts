@@ -12,6 +12,8 @@ export type Store = {
   longitude: number | null;
   created_at: string;
   updated_at: string;
+  address: string | null;
+  contact_info: string | null;
 };
 
 export function useStores(options?: { limit?: number }) {
