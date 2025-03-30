@@ -39,6 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.id);
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -58,6 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session check:', session?.user?.id);
       setSession(session);
       setUser(session?.user ?? null);
       
@@ -72,6 +74,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUserRole = async (userId: string) => {
     try {
+      // Check if we have profile data cached in localStorage for quick access
+      const cachedProfile = localStorage.getItem('user_profile');
+      if (cachedProfile) {
+        const parsedProfile = JSON.parse(cachedProfile);
+        if (parsedProfile.role) {
+          console.log('Using cached role:', parsedProfile.role);
+          setUserRole(parsedProfile.role as 'customer' | 'store_owner' | 'admin');
+        }
+      }
+
+      console.log('Fetching user role from database for user:', userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('role, first_name, last_name')
@@ -84,6 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (data) {
+        console.log('Fetched user role from database:', data.role);
         setUserRole(data.role as 'customer' | 'store_owner' | 'admin');
         
         // Store user profile data in localStorage for quick access
@@ -106,6 +120,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         clearGuestSession();
       }
       
+      console.log('Signing in user:', email);
       return await supabase.auth.signInWithPassword({ email, password });
     } catch (error) {
       console.error('Error signing in:', error);
@@ -126,16 +141,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         clearGuestSession();
       }
       
-      return await supabase.auth.signUp({
+      console.log('Signing up user:', email, 'with role:', role);
+      
+      // Include role in user metadata
+      const metadataWithRole = {
+        ...metadata,
+        role
+      };
+      
+      const result = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: {
-            role,
-            ...metadata
-          }
+          data: metadataWithRole
         }
       });
+      
+      console.log('Signup result:', result);
+      return result;
     } catch (error) {
       console.error('Error signing up:', error);
       return { error: error as Error, data: null };

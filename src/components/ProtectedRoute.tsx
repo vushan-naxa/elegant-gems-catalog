@@ -16,6 +16,11 @@ const ProtectedRoute = ({
 }: ProtectedRouteProps) => {
   const { user, userRole, isLoading, isGuest } = useAuth();
 
+  console.log("ProtectedRoute - User:", user?.id);
+  console.log("ProtectedRoute - Role:", userRole);
+  console.log("ProtectedRoute - isGuest:", isGuest);
+  console.log("ProtectedRoute - requiredRole:", requiredRole);
+
   // Show loading state
   if (isLoading) {
     return (
@@ -27,11 +32,13 @@ const ProtectedRoute = ({
 
   // Allow guest access if specified
   if (allowGuest && isGuest && (!requiredRole || requiredRole === 'customer')) {
+    console.log("Allowing guest access");
     return <>{children}</>;
   }
 
   // Check if user is authenticated
   if (!user && !isGuest) {
+    console.log("User not authenticated, redirecting to auth");
     toast({
       title: "Authentication required",
       description: "Please login to access this page",
@@ -42,6 +49,7 @@ const ProtectedRoute = ({
 
   // Check if user has required role
   if (requiredRole && userRole !== requiredRole) {
+    console.log(`User role ${userRole} doesn't match required role ${requiredRole}`);
     toast({
       title: "Access restricted",
       description: `This page is only accessible to ${requiredRole}s`,
@@ -58,6 +66,7 @@ const ProtectedRoute = ({
     }
   }
 
+  console.log("Access granted");
   return <>{children}</>;
 };
 
